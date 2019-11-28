@@ -1,1 +1,3 @@
-resource "passwordstore_secret" "test/secret" {}
+data "passwordstore_secret" "secret" {
+  name = "<pass-secret>"
+}
