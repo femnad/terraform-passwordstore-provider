@@ -1,1 +1,2 @@
-terraform-passwordstore-provider
+terraform-provider-passwordstore
+.terraform

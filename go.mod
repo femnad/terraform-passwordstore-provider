@@ -1,4 +1,4 @@
-module github.com/femnad/terraform-passwordstore-provider
+module github.com/femnad/terraform-provider-passwordstore
 
 go 1.13
 
