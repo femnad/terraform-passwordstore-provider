@@ -3,13 +3,15 @@ package main
 import (
 	"fmt"
 	"os/exec"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 const (
-	contentsKey = "contents"
-	nameKey     = "name"
+	contentsKey  = "contents"
+	firstLineKey = "firstline"
+	nameKey      = "name"
 )
 
 func dataSourceSecretRead(d *schema.ResourceData, m interface{}) error {
@@ -19,10 +21,22 @@ func dataSourceSecretRead(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("error reading content of secret `%s`: %w", name, err)
 	}
-	err = d.Set(contentsKey, string(output))
+	secretContent := string(output)
+	err = d.Set(contentsKey, secretContent)
 	if err != nil {
 		return fmt.Errorf("cannot set key `%s` of the data source: %w", contentsKey, err)
 	}
+
+	lines := strings.Split(secretContent, "\n")
+	if len(lines) == 0 {
+		return fmt.Errorf("Splitting the secret content by newlines didn't produce any lines")
+	}
+	firstLine := lines[0]
+	err = d.Set(firstLineKey, firstLine)
+	if err != nil {
+		return fmt.Errorf("cannot set key `%s` of the data source: %w", contentsKey, err)
+	}
+
 	d.SetId(name)
 	return nil
 }
@@ -37,6 +51,10 @@ func dataSourceSecret() *schema.Resource {
 				Required: true,
 			},
 			contentsKey: &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			firstLineKey: &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
